@@ -1,0 +1,10 @@
+{
+  "name": "GPS Tracker",
+  "version": "0.0.1",
+  "description": "Server that listens for location data from TrackingDevice",
+  "author": "Vladimir Nachev",
+  "license": "TBD",
+  "dependencies": {
+    "mongodb": "^2.2.16"
+  }
+}
