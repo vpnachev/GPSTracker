@@ -1,8 +1,5 @@
-#include <LWiFi.h>
-#include <LWiFiServer.h>
-
 #include "GPS.h"
-// Global vars
+
 
 GPSTracker* tracker;
 

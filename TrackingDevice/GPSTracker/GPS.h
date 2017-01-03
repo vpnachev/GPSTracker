@@ -4,14 +4,10 @@
 
 #include <LGPRS.h>
 #include <LGPRSClient.h>
-#include <LGPRSServer.h>
-#include <LGPRSUdp.h>
 #include <LGPS.h>
 
 #include <LWiFi.h>
 #include <LWiFiClient.h>
-#include <LWiFiServer.h>
-#include <LWiFiUdp.h>
 
 #define UPPER_TIME_LIMIT 120000     // The maximum sleep time in ms
 #define LOWER_TIME_LIMIT 2000       // The minimum sleep time in ms

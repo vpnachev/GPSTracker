@@ -102,18 +102,20 @@ void GPSTracker::submitToServer()
     {
         return;
     }
-
+    char buff[256];
     client.println("GET / HTTP/1.1");
     client.print("Host: ");
     client.print(site_url);
     client.print(":");
     client.println(site_port);
     client.print("Latitude: ");
-    client.println(gps_data[cache_gps].latitude, 6);
+    sprintf(buff, "%.6f", gps_data[cache_gps].latitude);
+    client.println(buff);
     client.print("Longitude: ");
-    client.println(gps_data[cache_gps].longitude, 6);
+    sprintf(buff, "%.6f", gps_data[cache_gps].longitude);
+    client.println(buff);
     client.print("Altitude: ");
-    client.println(gps_data[cache_gps].altitude, 2);
+    client.println(gps_data[cache_gps].altitude);
     client.print("Satelites_Count: ");
     client.println(gps_data[cache_gps].num_satelites);
     client.print("Localization_Time: ");
@@ -208,44 +210,41 @@ void GPSTracker::run()
 {
     unsigned long current_lapsed_time;
     int tries = 0;
-    while (true)
+    current_lapsed_time = millis();
+    if (current_lapsed_time - lastRun > time_interval)
     {
-        current_lapsed_time = millis();
-        if (current_lapsed_time - lastRun > time_interval)
-        {
-            Serial.println("Start another instance of the MaiN LOOP");
-            // here we have to get the location and submit it
-            // also update lastRun, check the movement in the last positions
-            // the sum of the coordinates devided by the number of points 
-            // give us the center of gravity
-            // if we were stationary, then the distance between all points will be very small
-            // if we start to move, then tha last point will move the center of gravity
-            // enough, that it will get away from most of the points
-            
-            initModules(); // swich to this when the GPRS and backend server are ready
-            //startGps();
-            tries = 0;
-            do {
-                localize();
-                ++tries;
-            }while(gps_data[cache_gps].num_satelites < 4 && tries < 16);
-            if(tries < 16 ){
-                submitToServer();
-                updateTimeInterval();
-                if (Wifi_enabled)
-                {   
-                    // submit localization to WI-FI module
-                    this->serve_on_wifi();
-                }
-                // increase cache_gps
-                cache_gps = (cache_gps+1) % CACHE_COUNT;
+        Serial.println("Start another instance of the MaiN LOOP");
+        // here we have to get the location and submit it
+        // also update lastRun, check the movement in the last positions
+        // the sum of the coordinates devided by the number of points
+        // give us the center of gravity
+        // if we were stationary, then the distance between all points will be very small
+        // if we start to move, then tha last point will move the center of gravity
+        // enough, that it will get away from most of the points
+
+        initModules(); // swich to this when the GPRS and backend server are ready
+        //startGps();
+        tries = 0;
+        do {
+            localize();
+            ++tries;
+        }while(gps_data[cache_gps].num_satelites < 4 && tries < 16);
+        if(tries < 16 ){
+            submitToServer();
+            updateTimeInterval();
+            if (Wifi_enabled)
+            {
+                // submit localization to WI-FI module
+                this->serve_on_wifi();
             }
-            lastRun = millis();
-            if (time_interval > 32000)
-                disableModules();
+            // increase cache_gps
+            cache_gps = (cache_gps+1) % CACHE_COUNT;
         }
-        delay(time_interval);
+        lastRun = millis();
+        if (time_interval > 32000)
+            disableModules();
     }
+    delay(time_interval);
 }
 
 bool GPSTracker::haveWeMoved() const
@@ -271,9 +270,13 @@ void GPSTracker::serve_on_wifi() const
     LWiFiClient client;
     client.connect("server", 80);
     
-    client.print(gps_data[cache_gps].latitude);
+    char buff[256];
+    sprintf(buff, "%.6f", gps_data[cache_gps].latitude);
+    client.print(buff);
     client.print(" ");
-    client.print(gps_data[cache_gps].longitude);
+    sprintf(buff, "%.6f", gps_data[cache_gps].longitude);
+    client.print(buff);
+    client.println();
 
     LWiFi.end();
 }
