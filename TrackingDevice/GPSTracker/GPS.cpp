@@ -1,22 +1,6 @@
 #include "GPS.h"
 #include "Battery.h"
 
-template<typename T>
-T max(const T& lhs, const T& rhs)
-{
-    if (lhs < rhs)
-        return rhs;
-    return lhs;
-}
-
-template<typename T>
-T min(const T& lhs, const T& rhs)
-{
-    if (lhs < rhs)
-        return lhs;
-    return rhs;
-}
-
 char* parse_token(char* data, char* dest)
 {
     int i = 0;

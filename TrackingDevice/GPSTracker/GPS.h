@@ -15,11 +15,6 @@
 #define CACHE_COUNT 8               // This number of last positions
 #define MOVEMENT_TRESHHOLD 0.0005f 	// 0.0009322146 ~ 100m distance somewhere in Bulgaria. On poles it should be less.
 
-template<typename T>
-T max(const T& lhs, const T& rhs);
-
-template<typename T>
-T min(const T& lhs, const T& rhs);
 char* parse_token(char* data, char* dest);
 
 class GPSTracker
