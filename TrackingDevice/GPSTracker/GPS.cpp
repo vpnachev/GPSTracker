@@ -148,10 +148,11 @@ GPSTracker::GPSTracker()
 {
     client = LGPRSClient();
     time_interval = (UPPER_TIME_LIMIT + LOWER_TIME_LIMIT) / 16;
-    setUrl("");	// TODO: Enter valid URL/IP
+    setUrl(""); // TODO: Enter valid URL/IP
     site_port = 80;
     lastRun = millis();
     Wifi_enabled = false;
+    GPS_enabled = false;
     cache_gps = 0;
     Serial.println("GPS_Tracker is init");
 }
@@ -161,18 +162,22 @@ void GPSTracker::initModules()
     Serial.println("In initModules");
     startGps();
     startGPRS();
+    for(int i = 0; i < CACHE_COUNT; ++i)
+        gps_data[i].longitude = gps_data[i].latitude = 0.0;
 }
 
 void GPSTracker::startGps()
 {
     LGPS.powerOn();
     delay(1000);
+    GPS_enabled = true;
     Serial.println("GPS is started");
 }
 
 void GPSTracker::stopGps()
 {
     LGPS.powerOff();
+    GPS_enabled = false;
     Serial.println("GPS is stopped");
 }
 
@@ -205,15 +210,16 @@ void GPSTracker::run()
         // if we were stationary, then the distance between all points will be very small
         // if we start to move, then tha last point will move the center of gravity
         // enough, that it will get away from most of the points
-
-        initModules(); // swich to this when the GPRS and backend server are ready
-        //startGps();
+        if(GPS_enabled == false)
+            startGps();
         tries = 0;
-        do {
+        do
+        {
             localize();
             ++tries;
         }while(gps_data[cache_gps].num_satelites < 4 && tries < 16);
-        if(tries < 16 ){
+        if(tries < 16 )
+        {
             submitToServer();
             updateTimeInterval();
             if (Wifi_enabled)
@@ -226,7 +232,7 @@ void GPSTracker::run()
         }
         lastRun = millis();
         if (time_interval > 32000)
-            disableModules();
+            stopGps();
     }
     delay(time_interval);
 }

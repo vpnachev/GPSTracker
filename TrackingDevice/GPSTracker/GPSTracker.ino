@@ -1,6 +1,5 @@
 #include "GPS.h"
 
-
 GPSTracker* tracker;
 
 void setup(){
@@ -10,5 +9,5 @@ void setup(){
 }
 
 void loop(){
-  tracker->run() ;
+  tracker->run();
 }
