@@ -6,8 +6,11 @@ char* parse_token(char* data, char* dest)
     int i = 0;
     while(data[i] != ',' && data[i] != 0)
         ++i;
-    if( dest != NULL)
+    if (dest != NULL)
+    {
         strncpy(dest, data, i);
+        dest[i] = '\0';
+    }
     if(data[i])
         ++i;
     return data + i;
@@ -50,7 +53,7 @@ void GPSTracker::localize()
     if(buff[0] != '0')
     {
         data = parse_token(data, buff);
-        gps_data[cache_gps].num_satelites = (int)atof(buff);
+        gps_data[cache_gps].num_satelites = atoi(buff);
     }
     else
     {
@@ -69,14 +72,18 @@ void GPSTracker::localize()
     Serial.print(gps_data[cache_gps].longitude, 6);
     Serial.print(" #sats ");
     Serial.println(gps_data[cache_gps].num_satelites);
+    delay(1000);
 
 }
 
 void GPSTracker::submitToServer()
 {
+    Serial.println("In submitToServer");
     int i;
     for (i = 0; i < 3; ++i)
     {
+        Serial.print("connect to server, attempt <-- ");
+        Serial.println(i + 1);
         if (client.connect(site_url, site_port))
         {
             break;
@@ -84,6 +91,7 @@ void GPSTracker::submitToServer()
     }
     if (i == 3)
     {
+        Serial.println("Failed to connecto to site_url");
         return;
     }
     char buff[256];
@@ -108,6 +116,7 @@ void GPSTracker::submitToServer()
     client.println(get_battery_rate());
     client.println();
 
+    Serial.println("The data is sent to server, now gets the response");
     // get the response
     int response;
     while (client.available())
@@ -116,7 +125,7 @@ void GPSTracker::submitToServer()
         if (response < 0)
             break;
     }
-    Serial.println("Data is submitted to server");
+    Serial.println("Response arrived");
 }
 
 void GPSTracker::updateTimeInterval()
@@ -148,7 +157,7 @@ GPSTracker::GPSTracker()
 {
     client = LGPRSClient();
     time_interval = (UPPER_TIME_LIMIT + LOWER_TIME_LIMIT) / 16;
-    setUrl(""); // TODO: Enter valid URL/IP
+    setUrl("", SET_URL_COMPILE_ERROR); // TODO: Enter valid URL/IP
     site_port = 80;
     lastRun = millis();
     Wifi_enabled = false;
@@ -215,9 +224,13 @@ void GPSTracker::run()
         tries = 0;
         do
         {
+            Serial.println("In do-while loop");
             localize();
             ++tries;
         }while(gps_data[cache_gps].num_satelites < 4 && tries < 16);
+        Serial.println("Out of do-while loop");
+        Serial.print("attempts= ");
+        Serial.println(tries);
         if(tries < 16 )
         {
             submitToServer();
@@ -233,8 +246,8 @@ void GPSTracker::run()
         lastRun = millis();
         if (time_interval > 32000)
             stopGps();
+        delay(time_interval);
     }
-    delay(time_interval);
 }
 
 bool GPSTracker::haveWeMoved() const
