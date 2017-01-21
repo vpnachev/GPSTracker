@@ -26,7 +26,7 @@ void GPSTracker::localize()
     data = parse_token(data, NULL); // $GPGGA
     data = parse_token(data, buff); // Time
     gps_data[cache_gps].date_time = atof(buff);
-    
+
     data = parse_token(data, buff);   // Latitude
     double tmp = atof(buff);
     gps_data[cache_gps].latitude = ((int)tmp) / 100; 
@@ -44,7 +44,7 @@ void GPSTracker::localize()
     tmp -= (gps_data[cache_gps].longitude * 100);
     tmp /= 60.0;
     gps_data[cache_gps].longitude += tmp; 
-    
+
     data = parse_token(data, buff);   // West/East
     if(buff[0] == 'W' || buff[0] == 'w')
         gps_data[cache_gps].longitude *= -1;
@@ -66,6 +66,7 @@ void GPSTracker::localize()
     data = parse_token(data, NULL); // flush the measurment system of altitude
     data = parse_token(data, buff); // get the height of geoid
     gps_data[cache_gps].altitude -= atof(buff); 
+
     Serial.println("The location was localized");
     Serial.print(gps_data[cache_gps].latitude, 6);
     Serial.print(" ");
@@ -73,7 +74,6 @@ void GPSTracker::localize()
     Serial.print(" #sats ");
     Serial.println(gps_data[cache_gps].num_satelites);
     delay(1000);
-
 }
 
 void GPSTracker::submitToServer()
@@ -87,7 +87,7 @@ void GPSTracker::submitToServer()
         if (client.connect(site_url, site_port))
         {
             break;
-        }   
+        }
     }
     if (i == 3)
     {
@@ -228,9 +228,11 @@ void GPSTracker::run()
             localize();
             ++tries;
         }while(gps_data[cache_gps].num_satelites < 4 && tries < 16);
+
         Serial.println("Out of do-while loop");
-        Serial.print("attempts= ");
+        Serial.print("attempts = ");
         Serial.println(tries);
+
         if(tries < 16 )
         {
             submitToServer();
