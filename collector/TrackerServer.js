@@ -1,5 +1,5 @@
-var http = require('http');
 var mongodb = require('mongodb');
+var express = require('express');
 
 var mongoClient = mongodb.MongoClient;
 var headers_keys = ['latitude', 'longitude', 'altitude', 'satelites_count', 'localization_time', 'battery_rate'];
@@ -12,11 +12,15 @@ function filter_request(request){
     return result;
 }
 
-var server = http.createServer(function(request, response){
+var app = express();
+app.use(express.static('public'));
+
+app.get('/', function(request, response){
     response.writeHead(200, {"Content-Type": "text/plain"});
     console.log(request.headers);
     if(filter_request(request) === false){
         console.log("The request does not contain required headers\n");
+        response.end("\n");
         return;
     }
     mongoClient.connect("mongodb://localhost/GPSTracker",
@@ -37,12 +41,33 @@ var server = http.createServer(function(request, response){
                         console.error(err);
                         return
                     }
-                    //console.log("Result", result)
                 });
         }
     );
     response.end("\n");
 });
 
-server.listen(80);
-console.log("Server is running\n");
+app.get('/positions', function(req, res){
+    mongoClient.connect("mongodb://localhost/GPSTracker",
+        function(err, database){
+            if(err){
+                console.error("Error occured:", error);
+                return;
+            }
+            var tracker = database.collection("tracker");
+            tracker.find({}, {"_id": 0, "longitude": 1, "latitude": 1, "battery_rate": 1})
+                .sort({"submit_date": -1})
+                .limit(20)
+                .toArray(function(err, positions){
+                    if(err){
+                        console.error("Cannot get positions:", err);
+                        return res.status(500).send();
+                    }
+                    res.json(positions);
+                });
+        });
+});
+
+app.listen(80, function(){
+    console.log("Server is running\n");
+});
