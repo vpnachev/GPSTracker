@@ -44,8 +44,13 @@
             for(var pos in res){positions.push([res[pos]["latitude"], res[pos]["longitude"]])};
             L.polyline(positions,
                     {color: 'red'}).addTo(mymap);
-            battery_rate = res[positions.length - 1]["battery_rate"];
-            mymap.setView(positions[positions.length - 1], 13);
+            if(positions && positions.length > 0){
+                battery_rate = res[positions.length - 1]["battery_rate"];
+                mymap.setView(positions[positions.length - 1], 13);
+            }
+            else {
+                mymap.setView([43.0, 23.0], 13);
+            }
         }
     }
 

@@ -4,9 +4,9 @@ GPSTracker* tracker;
 
 void setup()
 {
+    Serial.begin(9600);
     tracker = new GPSTracker();
     tracker->initModules();
-    Serial.begin(9600);
 }
 
 void loop()
