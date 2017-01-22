@@ -2,4 +2,3 @@ collector/node_modules
 TrackingDevice/gprs_example
 TrackingDevice/sample_output_gps.txt
 TrackingDevice/sample_screenshot.png
-Dockerfile

@@ -1,0 +1,6 @@
+.git/
+.gitignore
+LICENSE
+README.md
+TrackingDevice/
+collector/node_modules

@@ -2,4 +2,6 @@
 
 mkdir -p /data/db
 mongod &>>mongod.log &
-node collector/TrackerServer.js &>>collector.log &
+cd /root/collector
+npm install
+npm start
