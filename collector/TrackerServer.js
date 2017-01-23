@@ -57,7 +57,7 @@ app.get('/positions', function(req, res){
             var tracker = database.collection("tracker");
             tracker.find({}, {"_id": 0, "longitude": 1, "latitude": 1, "battery_rate": 1})
                 .sort({"submit_date": -1})
-                .limit(20)
+                .limit(300)
                 .toArray(function(err, positions){
                     if(err){
                         console.error("Cannot get positions:", err);

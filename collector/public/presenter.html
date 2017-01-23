@@ -45,8 +45,8 @@
             L.polyline(positions,
                     {color: 'red'}).addTo(mymap);
             if(positions && positions.length > 0){
-                battery_rate = res[positions.length - 1]["battery_rate"];
-                mymap.setView(positions[positions.length - 1], 13);
+                battery_rate = res[0]["battery_rate"];
+                mymap.setView(positions[0], 13);
             }
             else {
                 mymap.setView([43.0, 23.0], 13);
